@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Радар товарних трендів</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <div id="root">
+      <div id="boot" style="padding:24px;font-family:system-ui;font-size:15px;color:#6c7268">Завантаження…</div>
+    </div>
+    <div id="crash" style="display:none;padding:20px;margin:16px;border:1px solid #b4431b;background:#fff;font-family:ui-monospace,monospace;font-size:13px;line-height:1.5;white-space:pre-wrap;word-break:break-word;color:#b4431b"></div>
+    <script>
+      (function () {
+        var box = document.getElementById('crash');
+        function show(msg) {
+          var boot = document.getElementById('boot');
+          if (boot) boot.style.display = 'none';
+          box.style.display = 'block';
+          box.textContent += msg + '\n\n';
+        }
+        window.addEventListener('error', function (e) {
+          show('Помилка: ' + (e.message || '') + '\n' + (e.filename || '') + ':' + (e.lineno || ''));
+        });
+        window.addEventListener('unhandledrejection', function (e) {
+          show('Збій запиту: ' + (e.reason && e.reason.message ? e.reason.message : String(e.reason)));
+        });
+        setTimeout(function () {
+          var boot = document.getElementById('boot');
+          if (boot && boot.offsetParent !== null) {
+            show('Інтерфейс не запустився за 8 секунд — скрипт не виконався.');
+          }
+        }, 8000);
+      })();
+    </script>
+    <script type="module" src="/main.jsx"></script>
+  </body>
+</html>
