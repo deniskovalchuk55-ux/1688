@@ -178,10 +178,14 @@ function Detail({ id, onBack }) {
                             <td>{p.moq} шт</td>
                           </tr>
                           <tr>
+                            <td>Вже продано</td>
+                            <td>{p.sold ? `${p.sold} шт` : '—'}</td>
+                          </tr>
+                          <tr>
                             <td>Продавець</td>
                             <td>
-                              {p.seller_rating ? `${p.seller_rating}★` : '—'}
-                              {p.seller_reviews ? ` · ${p.seller_reviews} відгуків` : ''}
+                              {p.seller_years ? `${p.seller_years} р. на 1688` : '—'}
+                              {p.seller_rating ? ` · повторних ${p.seller_rating}%` : ''}
                             </td>
                           </tr>
                         </tbody>

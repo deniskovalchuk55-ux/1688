@@ -8,10 +8,12 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // Чи вартий продавець довіри. Дешевий товар у ненадійного
 // продавця обертається поверненнями, тому фільтруємо рано.
+// Кожен показник може бути відсутній — тоді його просто не враховуємо.
 function sellerOk(p) {
-  const { minSellerRating, minSellerReviews } = SETTINGS.filters;
-  if (p.sellerRating !== null && p.sellerRating < minSellerRating) return false;
-  if (p.sellerReviews && p.sellerReviews < minSellerReviews) return false;
+  const f = SETTINGS.filters;
+  if (p.sold !== null && p.sold < f.minSold) return false;
+  if (p.sellerYears !== null && p.sellerYears < f.minSellerYears) return false;
+  if (p.returnRate !== null && p.returnRate < f.minReturnRate) return false;
   return true;
 }
 
@@ -41,9 +43,9 @@ async function saveProduct(trendId, p, profit) {
        fetched_at = now()`,
     [
       trendId, p.offerId, p.title, p.url, p.image,
-      JSON.stringify(p.images || []), p.priceCny, p.moq,
-      p.weightKg, p.sold, p.sellerName, p.sellerRating,
-      p.sellerReviews, p.sellerYears, JSON.stringify(profit)
+      JSON.stringify({ images: p.images, tiers: p.priceTiers, shopUrl: p.shopUrl }),
+      p.priceCny, p.moq, p.weightKg, p.sold, p.sellerName,
+      p.returnRate, p.sold, p.sellerYears, JSON.stringify(profit)
     ]
   );
 }
