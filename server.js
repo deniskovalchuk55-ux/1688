@@ -196,9 +196,44 @@ app.get('/api/groups/:id', async (req, res) => {
 
 app.post('/api/group', async (_req, res) => {
   res.json({ started: true });
-  groupTrends()
-    .then(() => expandBroad())
-    .catch((e) => console.error('[групування]', e.message));
+
+  // Кнопка робить повний цикл: групує, розкриває широкі теми
+  // і одразу збирає ціни конкурентів для нових груп.
+  (async () => {
+    try {
+      await groupTrends();
+      await expandBroad();
+
+      const top = await q(
+        `SELECT g.id, g.name FROM trend_groups g
+         JOIN trend_group_scores s ON s.group_id = g.id
+         LEFT JOIN trend_market m ON m.group_id = g.id
+         WHERE g.broad = false AND m.group_id IS NULL
+         ORDER BY s.score DESC LIMIT 15`
+      );
+      if (top.length) await refreshMarket(top);
+    } catch (e) {
+      console.error('[групування]', e.message);
+    }
+  })();
+});
+
+// Окремо: оновити ціни конкурентів для груп, де їх ще немає.
+app.post('/api/market', async (_req, res) => {
+  res.json({ started: true });
+  (async () => {
+    try {
+      const top = await q(
+        `SELECT g.id, g.name FROM trend_groups g
+         JOIN trend_group_scores s ON s.group_id = g.id
+         WHERE g.broad = false
+         ORDER BY s.score DESC LIMIT 20`
+      );
+      await refreshMarket(top);
+    } catch (e) {
+      console.error('[ринок]', e.message);
+    }
+  })();
 });
 
 app.get('/api/status', async (_req, res) => {
